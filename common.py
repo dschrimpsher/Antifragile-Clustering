@@ -1,3 +1,9 @@
+from enum import Enum, auto
+
+class ScoringStrategy(Enum):
+    MAX_SIMILARITY = auto()
+    TOP_K_AVERAGE = auto()
+
 mechanism_names = [
     "convexity",
     "asymmetry",
@@ -5,8 +11,8 @@ mechanism_names = [
     "iterative_learning",
     "adaptive_restructuring",
     "growth_through_disorder",
-    "adaptability_oriented",
-    "resilience_oriented",
+    "adaptability_framed",
+    "rore_extended",
 ]
 
 MECH_COLS = [
@@ -16,8 +22,8 @@ MECH_COLS = [
     "iterative_learning",
     "adaptive_restructuring",
     "growth_through_disorder",
-    "rore_extended",
     "adaptability_framed",
+    "rore_extended",
 ]
 
 MAIN_SIX = [
