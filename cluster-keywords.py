@@ -160,7 +160,7 @@ for c in centers:
 
 # Add all columns at once
 df = pd.concat([df, pd.DataFrame(new_cols)], axis=1)
-
+print("Center Clusters", center_clusters)
 
 # --- after your loop that fills df[f"louvain_cluster_{c}"] and center_clusters ---
 # center_clusters[i] corresponds to centers[i]
