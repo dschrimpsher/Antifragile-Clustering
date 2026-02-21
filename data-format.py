@@ -1,13 +1,17 @@
 import re
 import pandas as pd
+from normlize import normalize_text
+
 
 # 1. Load your original file
-df = pd.read_csv("data/definitions-org.csv")
+df = pd.read_csv("data/Copy of definition assignments.xlsx - Sheet1.csv")
 
 # Helper: split a cell containing "1. ... 2. ... 3. ..."
-def split_definitions_cell(text: str):
-    if not isinstance(text, str) or not text.strip():
+def split_definitions_cell(org_text: str):
+    if not isinstance(org_text, str) or not org_text.strip():
         return []
+    text = normalize_text(org_text)
+
 
     # Look for lines that start with:  number + dot + space  (e.g., "1. ", "2. ")
     pattern = re.compile(r'(?m)^\s*(\d+)\.\s+')
@@ -32,7 +36,7 @@ def split_definitions_cell(text: str):
 expanded_rows = []
 
 for _, row in df.iterrows():
-    defs = split_definitions_cell(row["definition"])
+    defs = split_definitions_cell(row["Definition"])
 
     # If for some reason nothing comes back, still preserve the row
     if not defs:
@@ -56,7 +60,7 @@ for _, row in df.iterrows():
 expanded = pd.DataFrame(expanded_rows)
 
 # 3. Save it out
-expanded.to_csv("data/definitions_expanded.csv", index=False)
+expanded.to_csv("data/mapping_formated.csv", index=False)
 
 print(f"Original rows: {len(df)}")
 print(f"Expanded rows (one per definition): {len(expanded)}")

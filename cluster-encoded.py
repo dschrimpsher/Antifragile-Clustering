@@ -1,133 +1,180 @@
 import pandas as pd
-import networkx as nx
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import pairwise_distances
+from common import MECH_COLS, MAIN_SIX
+import networkx as nx
 import community as community_louvain  # python-louvain
 
-mechanism_names = [
-    "convexity",
-    "asymmetry",
-    "protective_robustness",
-    "iterative_learning",
-    "adaptive_restructuring",
-    "growth_through_disorder",
-    "adaptability-oriented",
-    "resilience-oriented",
-]
-
-bounds = mechanism_indexes + [len(centers)]  # IMPORTANT
-
-def run_cluster_precomputed(emb_defs, definitions, center, threshold=0.45):
-    center_emb = model.encode([center], convert_to_numpy=True)[0]
-
-    # similarity of each definition to center
-    sims = cosine_similarity(emb_defs, center_emb.reshape(1, -1)).ravel()
-
-    g = nx.Graph()
-    n = len(definitions)
-
-    center_node = n
-    none_node = n + 1
-
-    g.add_nodes_from(range(n + 2))
-
-    for i, sim in enumerate(sims):
-        if sim > threshold:
-            g.add_edge(i, center_node, weight=float(sim))
-        else:
-            g.add_edge(i, none_node, weight=1.0)
-
-    return community_louvain.best_partition(g, weight="weight")
 
 
-
-df = pd.read_csv("data/definitions_expanded.csv")
+df = pd.read_csv("data/encoded_uuid_v2_normalized.csv")
 df["definition"] = df["definition"].astype(str)
 df["year"] = pd.to_numeric(df["year"], errors="coerce")
 
-# ---- Round 1 ----
-defs = df["definition"].tolist()
-embedded_definitions = model.encode(defs, convert_to_numpy=True)
-
-mechanism_index = 0
-center_clusters = []
-new_cols = {}
-
-for c in centers:
-    partition = run_cluster_precomputed(embedded_definitions, defs, c, threshold=0.45)
-
-    new_cols[f"louvain_cluster_{c}"] = df.index.to_series().map(partition)
-    center_clusters.append(partition[len(defs)])  # <-- YOU FORGOT THIS
-    # print(c)
-
-
-# Add all columns at once
-df = pd.concat([df, pd.DataFrame(new_cols)], axis=1)
-
-
-# --- after your loop that fills df[f"louvain_cluster_{c}"] and center_clusters ---
-# center_clusters[i] corresponds to centers[i]
-
-
-# bounds = mechanism_indexes + [len(centers)]  # you already have this
-# mechanism_names = [...]                      # you already have this
-
-center_counts = []
-
-for k, mech in enumerate(mechanism_names):
-    start, end = bounds[k], bounds[k+1]
-
-    # collect per-center boolean masks (each is length=len(df))
-    masks = []
-    for i in range(start, end):
-        c = centers[i]
-        center_cid = center_clusters[i]
-        masks.append(df[f"louvain_cluster_{c}"].eq(center_cid))
-
-    # Combine across centers for this mechanism
-    mask_df = pd.concat(masks, axis=1)           # shape: (n_rows, n_centers_for_mech)
-    matched_any = mask_df.any(axis=1)            # bool: matched at least one center
-    score = mask_df.sum(axis=1).astype(int)      # int: number of centers matched
-
-    # Persist columns
-    df[f"match_{mech}"] = matched_any
-    df[f"score_{mech}"] = score
-
-    # Count definitions matching at least one center
-    count = int(matched_any.sum())
-    center_counts.append(count)
-
-    print(f"{mech}: {count} definitions matched ≥1 keyword")
-
-
-summary_rows = []
-
-for mech, count in zip(mechanism_names, center_counts):
-    mask = df[f"match_{mech}"]
-
-    if mask.any():
-        y_min = int(df.loc[mask, "year"].min())
-        y_max = int(df.loc[mask, "year"].max())
-        year_range = f"{y_min}-{y_max}"
-    else:
-        year_range = "N/A"
-
-    summary_rows.append({
-        "mechanism": mech,
-        "count": count,
-        "year_range": year_range
-    })
-
-    print(f"{mech}: {count} definitions, {year_range}")
-
-
-
-df.to_csv("data/definitions_expanded_with_clusters.csv", index=False)
-# print(df[["louvain_cluster", "louvain_subcluster"]].value_counts().sort_index())
-
-summary_df = pd.DataFrame(summary_rows)
-
-summary_df.to_csv(
-    "data/definitions_expanded_with_clusters_summary.csv",
-    index=False
+# Make sure they're clean 0/1 ints
+df[MECH_COLS] = (
+    df[MECH_COLS]
+        .fillna(0)
+        .astype(np.int8)
 )
+
+# Create the vector column
+def_vector = df[MECH_COLS].to_numpy(dtype=np.int8)
+
+S_cos = cosine_similarity(def_vector)
+def_vectory_bool = def_vector.astype(bool)
+
+D_jacc = pairwise_distances(def_vectory_bool, metric="jaccard")
+S_jacc = 1.0 - D_jacc
+vals = S_jacc[np.triu_indices_from(S_jacc, k=1)]
+print("Min:", vals.min())
+print("Mean:", vals.mean())
+print("Max:", vals.max())
+print("Percentiles [25,50,75,90,95]:", np.percentile(vals, [25,50,75,90,95]))
+
+
+threshold = 0.4
+n = S_jacc.shape[0]
+
+G = nx.Graph()
+
+# Use definition_id if you have it
+ids = df["definition_id"].tolist()
+G.add_nodes_from(ids)
+
+rows, cols = np.where(np.triu(S_jacc, k=1) >= threshold)
+
+for i, j in zip(rows, cols):
+    G.add_edge(ids[i], ids[j], weight=float(S_jacc[i, j]))
+
+print("Edges:", len(rows))
+print("Possible pairs:", len(S_jacc)*(len(S_jacc)-1)//2)
+edge_ratio  = len(rows) / (len(S_jacc)*(len(S_jacc)-1)//2)
+print("Edge ratio:", edge_ratio)
+if edge_ratio > 0.05:
+    print("Moderately Dense Graph")
+else:
+    print("Sparse Graph, consider changing the threshold")
+
+
+
+# Run Louvain
+partition = community_louvain.best_partition(G, weight="weight", random_state=42, resolution=1.0)
+
+# Attach to dataframe
+df["community"] = df["definition_id"].map(partition)
+
+print("Number of communities:", len(set(partition.values())))
+print(df["community"].value_counts().sort_index())
+
+# partition is: {uuid: community_id}
+cluster_profiles = (
+    df.groupby("community")[MECH_COLS]
+      .mean()
+      .round(2)
+)
+
+print("Cluster Profiles per Mechanism:", cluster_profiles)
+
+cluster_var = (
+    df.groupby("community")[MECH_COLS]
+      .std()
+      .fillna(0)
+)
+print("Cluster Variance:", cluster_var)
+
+#
+# Strong dominance:
+#
+# mechanism mean ≥ 0.70
+#
+# Moderate dominance:
+#
+# ≥ 0.50
+#
+# Hybrid:
+#
+# two mechanisms ≥ 0.50
+#
+# Sparse:
+#
+# no mechanism ≥ 0.40
+
+cluster_profiles = df.groupby("community")[MECH_COLS].mean()
+
+
+def label_cluster(row):
+    strong = row[row >= 0.6].index.tolist()
+
+    if len(strong) == 1:
+        return f"{strong[0]}-dominant"
+    elif len(strong) >= 2:
+        return "hybrid-" + "-".join(strong)
+    else:
+        return "mixed/weak"
+
+
+cluster_labels = cluster_profiles.apply(label_cluster, axis=1)
+cluster_labels.name = "label"   # give the Series a column name
+
+print(cluster_labels)
+
+
+output_labels = "results/cluster_labels.csv"
+cluster_labels.to_csv(output_labels, index=True)
+print(f"Saved cluster labels to {output_labels}")
+
+def classify_definition(row):
+    main_sum = row[MAIN_SIX].sum()
+
+    if main_sum == 6:
+        return "all_mechanisms"
+
+    if main_sum > 0:
+        return "partial_mechanism"
+
+    if row["rore_extended"] == 1:
+        return "rore_extended_only"
+
+    if row["adaptability_framed"] == 1:
+        return "adaptability_framed_only"
+
+    return "no_mechanism"
+
+
+df["mechanism_class"] = df.apply(classify_definition, axis=1)
+
+cluster_class_distribution = (
+    df.groupby("community")["mechanism_class"]
+      .value_counts(normalize=True)
+      .unstack()
+      .fillna(0)
+      .round(2)
+)
+
+print(cluster_class_distribution)
+
+output_definitions = "results/definitions_with_clusters.csv"
+df.to_csv(output_definitions, index=False)
+print(f"Saved row-level results to {output_definitions}")
+
+cluster_profiles_out = cluster_profiles.round(3)
+cluster_profiles_out["size"] = df["community"].value_counts()
+
+cluster_profiles_out = cluster_profiles_out.sort_index()
+
+output_profiles = "results/cluster_profiles.csv"
+cluster_profiles_out.to_csv(output_profiles)
+print(f"Saved cluster profiles to {output_profiles}")
+
+output_class_dist = "results/cluster_class_distribution.csv"
+cluster_class_distribution.to_csv(output_class_dist)
+print(f"Saved class distribution to {output_class_dist}")
+
+edge_df = nx.to_pandas_edgelist(G)
+
+output_edges = "results/mechanism_graph_edges.csv"
+edge_df.to_csv(output_edges, index=False)
+print(f"Saved graph edges to {output_edges}")
 
