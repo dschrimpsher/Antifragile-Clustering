@@ -46,7 +46,7 @@ asymmetry_anchor_texts = [
 
 protective_rore_anchor_texts = [
     "Manages or withstands disturbances and absorbs shocks in a way that leads to improvement or enhanced performance.",
-    "the implications of antifragility go beyond resilience or robustness. a resilient system resists stress and remains the same; while an antifragile system improves."
+
     # Alternate
     "Manages or withstand disturbances through robustness, absorbing shocks and emerging more robust while achieving improvement.",
 
@@ -162,7 +162,7 @@ class MechanismConfig:
 mechanisms = {
     "convexity": MechanismConfig(convexity_anchor_texts, 0.58, 7),
     "asymmetry": MechanismConfig(asymmetry_anchor_texts, 0.515, 5),
-    "protective_rore": MechanismConfig(protective_rore_anchor_texts, 0.50, 12),
+    "protective_rore": MechanismConfig(protective_rore_anchor_texts, 0.55, 11),
     "iterative_learning": MechanismConfig(iterative_learning_anchor_texts, 0.45625, 8),
     "adaptive_restructuring": MechanismConfig(adaptive_restructuring_anchor_texts, 0.509, 10),
     "growth_through_disorder": MechanismConfig(growth_through_disorder_anchor_texts, 0.39, 43),
@@ -178,7 +178,7 @@ for name, config in mechanisms.items():
     while not done:
         scores = score_one_mechanism(
             embedded_definitions,
-            config.anchors[:2],
+            config.anchors[:1],
             model=model,
             strategy=ScoringStrategy.TOP_K_AVERAGE,
             top_k=3,
@@ -223,11 +223,8 @@ df_out["non_amf"] = (~df_out["amf_any"])
 
 paper_profile = (
     df_out
-    .groupby("title")
-    .agg(
-        year=("year", "first"),   # safe because 1 year per title
-        **{col: (col, "max") for col in mechanism_cols}
-    )
+    .groupby("title")[mechanism_cols]
+    .max()  # max works as OR for booleans
     .reset_index()
 )
 
@@ -248,6 +245,32 @@ non_amf_defs_list = non_amf_defs["definition"].tolist()
 # Cluster non-amf defs
 non_amf_indices = non_amf_defs.index.to_numpy()
 emb_non_amf = embedded_definitions[non_amf_indices]
+
+
+# Louvain Cluster Option
+
+def run_cluster_center_focus(emb_defs, definitions, center, threshold=0.45):
+    center_emb = model.encode([center], convert_to_numpy=True)[0]
+
+    # similarity of each definition to center
+    sims = cosine_similarity(emb_defs, center_emb.reshape(1, -1)).ravel()
+
+    g = nx.Graph()
+    n = len(definitions)
+
+    center_node = n
+    none_node = n + 1
+
+    g.add_nodes_from(range(n + 2))
+
+    for i, sim in enumerate(sims):
+        if sim > threshold:
+            g.add_edge(i, center_node, weight=float(sim))
+        else:
+            g.add_edge(i, none_node, weight=float(sim))
+
+    return community_louvain.best_partition(g, weight="weight")
+
 
 def run_basic_louvain_cluster(emb_defs, definitions, threshold=0.45):
     sim_matrix = cosine_similarity(emb_defs)
@@ -372,6 +395,86 @@ non_amf_defs.to_csv(
     index=False
 )
 
+# HDBSCAN hdbscan_cluster Option
+
+clusterer = hdbscan.HDBSCAN(
+    min_cluster_size=2,
+    metric="euclidean",
+    cluster_selection_method="eom"
+)
+
+
+non_amf_hdbscan_defs = df_out[df_out["non_amf"]].copy()
+non_amf_hdbscan_defs_list = non_amf_hdbscan_defs["definition"].tolist()
+
+# hdbscan_cluster non-amf defs
+non_amf_hdbscan_indices = non_amf_hdbscan_defs.index.to_numpy()
+emb_non_amf_hdbscan = embedded_definitions[non_amf_hdbscan_indices]
+
+cluster_labels = clusterer.fit_predict(emb_non_amf_hdbscan)
+non_amf_hdbscan_defs["hdbscan_cluster"] = cluster_labels
+
+for c in sorted(non_amf_hdbscan_defs["hdbscan_cluster"].unique()):
+    print(f"\nhdbscan_cluster {c}")
+    examples = non_amf_hdbscan_defs[non_amf_hdbscan_defs["hdbscan_cluster"] == c]["definition"].head(5)
+    for e in examples:
+        print("-", e)
+
+vectorizer = TfidfVectorizer(
+    stop_words="english",
+    max_features=1000
+)
+
+X = vectorizer.fit_transform(non_amf_hdbscan_defs["definition"])
+
+terms = np.array(vectorizer.get_feature_names_out())
+
+for c in sorted(non_amf_hdbscan_defs["hdbscan_cluster"].unique()):
+    indices = np.where(non_amf_hdbscan_defs["hdbscan_cluster"] == c)[0]
+    mean_tfidf = X[indices].mean(axis=0).A1
+    top_terms = terms[np.argsort(mean_tfidf)[-10:]]
+    print(f"\nhdbscan_cluster {c + 2} top terms:", top_terms)
+
+
+for cid in sorted(non_amf_hdbscan_defs["hdbscan_cluster"].unique()):
+    members = (non_amf_hdbscan_defs["hdbscan_cluster"] == cid).to_numpy()
+    emb_cluster = emb_non_amf_hdbscan[members]  # (Nc, D)
+
+    # centroid = emb_cluster.mean(axis=0, keepdims=True)  # (1, D)
+    # sims = cosine_similarity(centroid, emb_anchors).ravel()  # (A,)
+
+    sim_mat = cosine_similarity(emb_cluster, emb_anchors)  # (Nc, A)
+
+    by_label = defaultdict(list)
+
+    for anchor_idx, owner in enumerate(anchor_owner):
+        by_label[owner].extend(sim_mat[:, anchor_idx])
+
+    label_scores = {label: agg_max(np.array(vals)) for label, vals in by_label.items()}
+
+    # label_scores = {
+    #     label: topk_mean(np.array(vals), k=5)
+    #     for label, vals in by_label.items()
+    # }
+
+    best_label = max(label_scores, key=label_scores.get)
+
+    print(f"\nhdbscan_cluster {cid}  best_match={best_label}  scores={label_scores}")
+    cluster_best_label[cid] = best_label
+    cluster_best_score[cid] = label_scores[best_label]
+
+non_amf_hdbscan_defs["cluster_label"] = (
+    non_amf_hdbscan_defs["hdbscan_cluster"]
+        .map(cluster_best_label)
+)
+
+non_amf_hdbscan_defs["cluster_score"] = (
+    non_amf_hdbscan_defs["hdbscan_cluster"]
+        .map(cluster_best_score)
+)
+
+
+df_out.loc[non_amf_hdbscan_defs.index, "hdbscan_cluster"] = cluster_labels
 
 # Finally Write data
 
@@ -379,3 +482,34 @@ df_out.to_csv("results/multi-label-classified_definitions.csv", index=False)
 
 paper_profile.to_csv("results/multi-label-classified_papers.csv", index=False)
 
+cluster_export = df_out[df_out["non_amf"]].copy()
+
+cluster_export.to_csv(
+    "results/non_amf_hdbscan_hdbscan_clustered_definitions.csv",
+    index=False
+)
+
+cluster_summary = (
+    cluster_export
+    .groupby("hdbscan_cluster")
+    .agg(
+        count=("definition", "count"),
+        papers=("title", "nunique")
+    )
+    .reset_index()
+)
+
+cluster_top_terms = {}
+
+for c in sorted(cluster_export["hdbscan_cluster"].dropna().unique()):
+    mask = (cluster_export["hdbscan_cluster"] == c).to_numpy()
+    mean_tfidf = X[mask].mean(axis=0).A1
+    top_terms = terms[np.argsort(mean_tfidf)[-8:]]
+    cluster_top_terms[c] = ", ".join(top_terms)
+
+cluster_summary["top_terms"] = cluster_summary["hdbscan_cluster"].map(cluster_top_terms)
+
+cluster_summary.to_csv(
+    "results/non_amf_hdbscan_hdbscan_cluster_summary_with_terms.csv",
+    index=False
+)

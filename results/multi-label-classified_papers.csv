@@ -1,46 +1,46 @@
-title,is_convexity,is_asymmetry,is_protective_rore,is_iterative_learning,is_adaptive_restructuring,is_growth_through_disorder,has_transformative_mechanism
-a managerial operationalization of antifragility and its consequences in supply chains,True,False,True,False,False,True,True
-a philosophy of security architecture design,False,False,False,False,False,False,False
-"a right-brained approach to critical infrastructure protection theory in support of strategy and education: deterrence, networks, resilience, and antifragility",False,False,False,False,False,True,True
-an operationalization of antifragility in inventory management,True,False,True,False,False,True,True
-"analyzing antifragility among smallholder farmers in bihar, india: an assessment of farmers vulnerability and the strengths of positive deviants",False,False,False,True,False,True,True
-antifragile philosophy in r&d projects: applying q methodology and the possibility of open innovation,False,False,False,False,False,False,False
-"antifragile, sustainable and agile healthcare waste chain network design by considering blockchain, resiliency, robustness and risk",False,False,False,False,False,True,True
-"antifragile, sustainable, and agile supply chain network design by considering resiliency, robustness, risk, and environmental requirements",False,False,False,False,False,True,True
-antifragility and organizations: an organizational design perspective,False,False,True,False,True,True,True
-antifragility model development for businesses in the cosmetics industry,False,True,False,False,False,True,True
-antifragility predicts the robustness and evolvability of biological networks through multi-class classification with a convolutional neural network,False,False,False,False,False,True,True
-approaches for resilience and antifragility in collaborative business ecosystems,True,True,True,True,True,True,True
-betting on the future: how to build antifragility in innovative start-up companies,False,False,False,False,False,True,True
-beyond resilience: towards antifragility?,False,False,False,False,True,True,True
-black-swan type catastrophes and antifragility/supra-resilience of urban socio-technical infrastructures,False,False,False,True,False,False,True
-building an antifragile supply chain: a capability blueprint for resilience and post-disruption growth,False,False,False,False,False,True,True
-building antifragility in service organisations: going beyond resilience,False,False,False,True,False,True,True
-building supply chain resilience and antifragility: strategies and technologies for mitigating disruptions,False,False,False,False,False,False,False
-corporate real estate black swan strategies: beyond probability and resilience,False,True,False,True,False,True,True
-"correction to: antifragile, sustainable, and agile supply chain network design by considering resiliency, robustness, risk, and environmental requirements",False,False,False,False,True,True,True
-crisis response modes in collaborative business ecosystems: a mathematical framework from plasticity to antifragility,True,True,False,False,False,True,True
-data-driven digital transformation and the implications for antifragility in the humanitarian supply chain,False,False,False,False,False,True,True
-designing antifragile social-technical information systems in an era of big data,False,False,False,False,True,True,True
-designing decentralized knowledge management systems to effectuate individual and collective generative capacities,False,False,False,False,False,True,True
-emergence of antifragility by optimum post-disruption restoration planning of infrastructure networks,True,False,True,True,True,True,True
-empowering organisations to gain from uncertainty: a conceptualisation of antifragility through leveraging organisational routines in uncertain environments,False,False,False,False,False,True,True
-enhancing antifragile performance of manufacturing systems through predictive maintenance,False,False,True,False,True,True,True
-evaluation of critical success factors for antifragile supply chains using delphi and fuzzy qfd methods,False,True,True,True,False,True,True
-"fragile, robust and antifragile services",False,False,True,False,False,True,True
-gaining from disorder: making the case for antifragility in purchasing and supply chain management,False,False,False,False,False,False,False
-health service implementation and antifragile characteristics in rural communities: a dirt research approach,False,False,False,False,False,True,True
-introducing antifragility analysis algorithm for assessing digitalization strategies of the agricultural economy in the small farming section,False,False,False,False,False,True,True
-investigating the interaction of factors for implementing additive manufacturing to build an antifragile supply chain: tism-micmac approach,False,False,False,False,False,False,False
-navigating uncertainties in the built environment: reevaluating antifragile planning in the anthropocene through a posthumanist lens,False,False,False,False,False,True,True
-on the meaning and operationalization of antifragility: comment on the paper by groî2ler,True,False,False,False,True,True,True
-"resilience, robustness, and antifragility: towards an appreciation of distinct organizational responses to adversity",False,False,False,False,False,True,True
-"significant leap in the industrial revolution from industry 4.0 to industry 5.0: needs, problems, and driving forces",False,False,False,False,False,False,False
-stocks and cryptocurrencies: antifragile or robust? a novel antifragility measure of the stock and cryptocurrency markets,False,False,False,False,False,False,False
-storytelling as a strategy in managing complex systems: using antifragility for handling an uncertain future in reliability,True,False,True,False,True,True,True
-supraresilience of bio-socio-technical infrastructures,False,False,False,False,False,False,False
-"synergistic closed-loop supply chain network design by considering robustness, risk: an automotive case study",False,False,False,False,True,True,True
-the effect of digital governance to stimulate the antifragile capabilities of public sector organizations,False,False,False,False,False,True,True
-the implications of industry 4.0 for managing supply chain disruption and enhancing supply chain resilience: a systematic literature review,False,False,False,True,False,True,True
-thrive during a crisis: the role of digital technologies in fostering antifragility in small and medium-sized enterprises,False,False,True,False,False,True,True
-transport collaboration network among competitors to improve supply chain antifragility,False,False,False,False,False,True,True
+title,year,is_convexity,is_asymmetry,is_protective_rore,is_iterative_learning,is_adaptive_restructuring,is_growth_through_disorder,has_transformative_mechanism
+a managerial operationalization of antifragility and its consequences in supply chains,2020,True,False,True,False,False,True,True
+a philosophy of security architecture design,2020,False,False,False,False,False,False,False
+"a right-brained approach to critical infrastructure protection theory in support of strategy and education: deterrence, networks, resilience, and antifragility",2017,False,False,False,False,False,True,True
+an operationalization of antifragility in inventory management,2023,True,False,False,False,False,True,True
+"analyzing antifragility among smallholder farmers in bihar, india: an assessment of farmers vulnerability and the strengths of positive deviants",2023,False,False,False,True,False,False,True
+antifragile philosophy in r&d projects: applying q methodology and the possibility of open innovation,2021,False,False,False,False,False,False,False
+"antifragile, sustainable and agile healthcare waste chain network design by considering blockchain, resiliency, robustness and risk",2025,False,False,True,False,False,True,True
+"antifragile, sustainable, and agile supply chain network design by considering resiliency, robustness, risk, and environmental requirements",2023,False,False,False,False,False,True,True
+antifragility and organizations: an organizational design perspective,2025,False,False,True,False,True,True,True
+antifragility model development for businesses in the cosmetics industry,2025,False,True,False,False,False,True,True
+antifragility predicts the robustness and evolvability of biological networks through multi-class classification with a convolutional neural network,2020,False,False,False,False,False,True,True
+approaches for resilience and antifragility in collaborative business ecosystems,2020,True,False,True,True,True,True,True
+betting on the future: how to build antifragility in innovative start-up companies,2024,False,False,False,False,False,True,True
+beyond resilience: towards antifragility?,2023,False,False,True,False,False,True,True
+black-swan type catastrophes and antifragility/supra-resilience of urban socio-technical infrastructures,2020,False,False,False,False,True,False,True
+building an antifragile supply chain: a capability blueprint for resilience and post-disruption growth,2024,False,False,False,False,False,True,True
+building antifragility in service organisations: going beyond resilience,2014,False,False,True,True,True,True,True
+building supply chain resilience and antifragility: strategies and technologies for mitigating disruptions,2023,False,False,False,False,False,False,False
+corporate real estate black swan strategies: beyond probability and resilience,2016,False,True,False,True,False,True,True
+"correction to: antifragile, sustainable, and agile supply chain network design by considering resiliency, robustness, risk, and environmental requirements",2023,False,False,False,True,True,True,True
+crisis response modes in collaborative business ecosystems: a mathematical framework from plasticity to antifragility,2025,True,True,False,False,False,True,True
+data-driven digital transformation and the implications for antifragility in the humanitarian supply chain,2023,False,False,False,False,False,True,True
+designing antifragile social-technical information systems in an era of big data,2021,False,False,False,False,False,True,True
+designing decentralized knowledge management systems to effectuate individual and collective generative capacities,2020,False,False,True,False,False,True,True
+emergence of antifragility by optimum post-disruption restoration planning of infrastructure networks,2017,True,False,True,True,True,True,True
+empowering organisations to gain from uncertainty: a conceptualisation of antifragility through leveraging organisational routines in uncertain environments,2021,False,False,False,False,False,True,True
+enhancing antifragile performance of manufacturing systems through predictive maintenance,2022,False,False,True,False,True,True,True
+evaluation of critical success factors for antifragile supply chains using delphi and fuzzy qfd methods,2024,False,True,True,False,True,True,True
+"fragile, robust and antifragile services",2018,False,False,True,False,False,True,True
+gaining from disorder: making the case for antifragility in purchasing and supply chain management,2021,False,False,False,False,False,False,False
+health service implementation and antifragile characteristics in rural communities: a dirt research approach,2023,False,True,False,True,False,True,True
+introducing antifragility analysis algorithm for assessing digitalization strategies of the agricultural economy in the small farming section,2024,False,False,False,False,False,True,True
+investigating the interaction of factors for implementing additive manufacturing to build an antifragile supply chain: tism-micmac approach,2022,False,False,False,False,False,True,True
+navigating uncertainties in the built environment: reevaluating antifragile planning in the anthropocene through a posthumanist lens,2024,False,False,False,False,False,True,True
+on the meaning and operationalization of antifragility: comment on the paper by groî2ler,2020,True,False,False,False,False,True,True
+"resilience, robustness, and antifragility: towards an appreciation of distinct organizational responses to adversity",2022,False,False,False,False,False,True,True
+"significant leap in the industrial revolution from industry 4.0 to industry 5.0: needs, problems, and driving forces",2024,False,False,False,False,False,False,False
+stocks and cryptocurrencies: antifragile or robust? a novel antifragility measure of the stock and cryptocurrency markets,2023,False,False,False,False,False,False,False
+storytelling as a strategy in managing complex systems: using antifragility for handling an uncertain future in reliability,2017,True,False,False,False,False,True,True
+supraresilience of bio-socio-technical infrastructures,2020,False,False,False,False,False,False,False
+"synergistic closed-loop supply chain network design by considering robustness, risk: an automotive case study",2025,False,False,False,False,False,True,True
+the effect of digital governance to stimulate the antifragile capabilities of public sector organizations,2024,False,False,False,False,False,True,True
+the implications of industry 4.0 for managing supply chain disruption and enhancing supply chain resilience: a systematic literature review,2025,False,False,False,False,False,True,True
+thrive during a crisis: the role of digital technologies in fostering antifragility in small and medium-sized enterprises,2023,False,False,True,False,False,True,True
+transport collaboration network among competitors to improve supply chain antifragility,2024,False,False,False,False,False,True,True
